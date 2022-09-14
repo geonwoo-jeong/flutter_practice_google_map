@@ -20,9 +20,60 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: GoogleMap(
+    return Scaffold(
+      appBar: renderAppBar(),
+      body: Column(
+        children: const [
+          _CustomGoogleMap(
+            initialPosition: initialPosition,
+          ),
+          _Attendance(),
+        ],
+      ),
+    );
+  }
+
+  AppBar renderAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      title: const Text(
+        '마카바보',
+        style: TextStyle(
+          color: Colors.blue,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _CustomGoogleMap extends StatelessWidget {
+  final CameraPosition initialPosition;
+
+  const _CustomGoogleMap({
+    required this.initialPosition,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 2,
+      child: GoogleMap(
         initialCameraPosition: initialPosition,
+      ),
+    );
+  }
+}
+
+class _Attendance extends StatelessWidget {
+  const _Attendance({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Expanded(
+      child: Text(
+        '출근',
       ),
     );
   }
