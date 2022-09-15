@@ -22,13 +22,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static const double distance = 100;
 
-  static final Circle circle = Circle(
-    circleId: const CircleId('company_circle'),
+  static final Circle withinDistanceCircle = Circle(
+    circleId: const CircleId('withinDistanceCircle'),
     center: companyLatLng,
     fillColor: Colors.blue.withOpacity(0.5),
     radius: distance,
     strokeColor: Colors.blue,
     strokeWidth: 1,
+  );
+
+  static final Circle notWithinDistanceCircle = Circle(
+    circleId: const CircleId('notWithinDistanceCircle'),
+    center: companyLatLng,
+    fillColor: Colors.red.withOpacity(0.5),
+    radius: distance,
+    strokeColor: Colors.red,
+    strokeWidth: 1,
+  );
+
+  static final Circle checkDoneCircle = Circle(
+    circleId: const CircleId('checkDoneCircle'),
+    center: companyLatLng,
+    fillColor: Colors.red.withOpacity(0.5),
+    radius: distance,
+    strokeColor: Colors.red,
+    strokeWidth: 1,
+  );
+
+  static const Marker marker = Marker(
+    markerId: MarkerId('company_marker'),
+    position: companyLatLng,
   );
 
   @override
@@ -49,7 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _CustomGoogleMap(
                   initialPosition: initialPosition,
-                  circle: circle,
+                  circle: withinDistanceCircle,
+                  marker: marker,
                 ),
                 _Attendance(),
               ],
@@ -105,10 +129,12 @@ class _HomeScreenState extends State<HomeScreen> {
 class _CustomGoogleMap extends StatelessWidget {
   final CameraPosition initialPosition;
   final Circle circle;
+  final Marker marker;
 
   const _CustomGoogleMap({
     required this.initialPosition,
     required this.circle,
+    required this.marker,
     Key? key,
   }) : super(key: key);
 
@@ -117,11 +143,11 @@ class _CustomGoogleMap extends StatelessWidget {
     return Expanded(
       flex: 2,
       child: GoogleMap(
-        initialCameraPosition: initialPosition,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: false,
-        circles: {circle},
-      ),
+          initialCameraPosition: initialPosition,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          circles: {circle},
+          markers: {marker}),
     );
   }
 }
