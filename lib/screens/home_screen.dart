@@ -10,6 +10,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool attendanceDone = false;
+
   static const LatLng companyLatLng = LatLng(
     35.6872689,
     139.7748334,
@@ -93,12 +95,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       _CustomGoogleMap(
                         initialPosition: initialPosition,
-                        circle: isWithinRange
-                            ? withinDistanceCircle
-                            : notWithinDistanceCircle,
+                        circle: attendanceDone
+                            ? checkDoneCircle
+                            : isWithinRange
+                                ? withinDistanceCircle
+                                : notWithinDistanceCircle,
                         marker: marker,
                       ),
-                      _Attendance(),
+                      _Attendance(
+                        isWithinRange: isWithinRange,
+                        attendanceDone: attendanceDone,
+                        onPressed: onAttendancePressed,
+                      ),
                     ],
                   );
                 });
@@ -110,6 +118,38 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  void onAttendancePressed() async {
+    final result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('출근하기'),
+          content: const Text('출근을 하시겠습니까?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Attendance'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result) {
+      setState(() {
+        attendanceDone = true;
+      });
+    }
   }
 
   Future<String> checkPermission() async {
@@ -177,14 +217,41 @@ class _CustomGoogleMap extends StatelessWidget {
 }
 
 class _Attendance extends StatelessWidget {
-  const _Attendance({Key? key}) : super(key: key);
+  final bool isWithinRange;
+  final bool attendanceDone;
+  final VoidCallback onPressed;
+
+  const _Attendance({
+    required this.isWithinRange,
+    required this.attendanceDone,
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Expanded(
-      child: Text(
-        '출근',
-      ),
-    );
+    return Expanded(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Icon(
+          Icons.timelapse_outlined,
+          size: 50.0,
+          color: attendanceDone
+              ? Colors.green
+              : isWithinRange
+                  ? Colors.blue
+                  : Colors.red,
+        ),
+        const SizedBox(
+          height: 20.0,
+        ),
+        if (!attendanceDone && isWithinRange)
+          TextButton(
+            onPressed: onPressed,
+            child: const Text('출근하기'),
+          )
+      ],
+    ));
   }
 }
