@@ -11,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool attendanceDone = false;
+  GoogleMapController? mapController;
 
   static const LatLng companyLatLng = LatLng(
     35.6872689,
@@ -101,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? withinDistanceCircle
                                 : notWithinDistanceCircle,
                         marker: marker,
+                        onMapCreated: onMapCreated,
                       ),
                       _Attendance(
                         isWithinRange: isWithinRange,
@@ -118,6 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  void onMapCreated(GoogleMapController controller) {
+    mapController = controller;
   }
 
   void onAttendancePressed() async {
@@ -186,6 +192,28 @@ class _HomeScreenState extends State<HomeScreen> {
           fontWeight: FontWeight.w700,
         ),
       ),
+      actions: [
+        IconButton(
+          onPressed: () async {
+            if (mapController == null) {
+              return;
+            }
+
+            final location = await Geolocator.getCurrentPosition();
+
+            mapController!.animateCamera(
+              CameraUpdate.newLatLng(
+                LatLng(
+                  location.latitude,
+                  location.longitude,
+                ),
+              ),
+            );
+          },
+          color: Colors.blue,
+          icon: const Icon(Icons.my_location),
+        )
+      ],
     );
   }
 }
@@ -194,11 +222,13 @@ class _CustomGoogleMap extends StatelessWidget {
   final CameraPosition initialPosition;
   final Circle circle;
   final Marker marker;
+  final MapCreatedCallback onMapCreated;
 
   const _CustomGoogleMap({
     required this.initialPosition,
     required this.circle,
     required this.marker,
+    required this.onMapCreated,
     Key? key,
   }) : super(key: key);
 
@@ -207,11 +237,13 @@ class _CustomGoogleMap extends StatelessWidget {
     return Expanded(
       flex: 2,
       child: GoogleMap(
-          initialCameraPosition: initialPosition,
-          myLocationEnabled: true,
-          myLocationButtonEnabled: false,
-          circles: {circle},
-          markers: {marker}),
+        initialCameraPosition: initialPosition,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        circles: {circle},
+        markers: {marker},
+        onMapCreated: onMapCreated,
+      ),
     );
   }
 }
