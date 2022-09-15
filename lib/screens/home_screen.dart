@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,9 +14,21 @@ class _HomeScreenState extends State<HomeScreen> {
     35.6872689,
     139.7748334,
   );
+
   static const CameraPosition initialPosition = CameraPosition(
     target: companyLatLng,
     zoom: 18,
+  );
+
+  static const double distance = 100;
+
+  static final Circle circle = Circle(
+    circleId: const CircleId('company_circle'),
+    center: companyLatLng,
+    fillColor: Colors.blue.withOpacity(0.5),
+    radius: distance,
+    strokeColor: Colors.blue,
+    strokeWidth: 1,
   );
 
   @override
@@ -36,9 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (snapshot.data == '위치 권한이 허가되었습니다') {
             return Column(
-              children: const [
+              children: [
                 _CustomGoogleMap(
                   initialPosition: initialPosition,
+                  circle: circle,
                 ),
                 _Attendance(),
               ],
@@ -93,9 +104,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _CustomGoogleMap extends StatelessWidget {
   final CameraPosition initialPosition;
+  final Circle circle;
 
   const _CustomGoogleMap({
     required this.initialPosition,
+    required this.circle,
     Key? key,
   }) : super(key: key);
 
@@ -105,6 +118,9 @@ class _CustomGoogleMap extends StatelessWidget {
       flex: 2,
       child: GoogleMap(
         initialCameraPosition: initialPosition,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        circles: {circle},
       ),
     );
   }
